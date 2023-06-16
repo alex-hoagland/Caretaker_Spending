@@ -1,0 +1,15 @@
+#!/bin/csh
+
+#$ -l h_rt=06:00:00
+#$ -j y
+
+#$ -P caretaking
+
+# Load Stata
+module load stata
+
+#Run the program
+# stata do CreateHCCs_UsingCluster_ICD9.do ${plan} ${year}
+# stata do CreateHCCs_UsingCluster_ICD10.do ${plan} ${year}
+#stata do 1.CreateHCCs_SCC.do ${plan} ${year}
+stata do 2.AssignDXDates.do ${plan} ${year}

@@ -1,0 +1,5 @@
+
+ERROR: Disk full.  Could not create WORK.
+NOTE: Unable to initialize the options subsystem.
+ERROR: (SASXKINI): PHASE 3 KERNEL INITIALIZATION FAILED.
+ERROR: Unable to initialize the SAS kernel.

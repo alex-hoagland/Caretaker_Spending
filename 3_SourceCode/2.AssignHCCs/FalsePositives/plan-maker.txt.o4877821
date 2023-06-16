@@ -1,0 +1,324 @@
+
+  ___  ____  ____  ____  ____ (R)
+ /__    /   ____/   /   ____/
+___/   /   /___/   /   /___/   16.1   Copyright 1985-2019 StataCorp LLC
+  Statistics/Data analysis            StataCorp
+                                      4905 Lakeway Drive
+                                      College Station, Texas 77845 USA
+                                      800-STATA-PC        https://www.stata.com
+                                      979-696-4600        stata@stata.com
+                                      979-696-4601 (fax)
+
+Stata license: 150-user network perpetual
+Serial number: 401606205646
+  Licensed to: Boston University
+               Boston
+
+Notes:
+      1. Unicode is supported; see help unicode_advice.
+
+. do 1.CreateHCCs_SCC.do allfams 2014 
+
+. /****************************************************************************
+> ***
+> * Title: Assign HHS-HCC Variables (2015 categories) based on Diagnosis Codes
+> * Created by: Alex Hoagland
+> * Created on: March 2020
+> * Last modified on: 2/9/2021
+> * Last modified by: 
+> * Purpose: 
+>                         
+> * Notes: - Best used after running "0.PrepHCCData.do", which splits large dat
+> a sets into firm-plankey-year data sets
+>          - When used on SCC, first local is the plan and second local is the 
+> year
+>          - Drops all labs and x-ray claims for fear of false positives
+>          - Works for both ICD-9-CM and ICD-10-CM codes
+>                         
+> * Key edits: 
+> 
+> *****************************************************************************
+> **/
+. 
+. 
+. ***** 1. Data preparation
+. use "/projectnb/caretaking/SpendingFiles/Claims_`1'_`2'.dta", clear
+
+. cap rename dxver ver
+
+. *****************************************************************************
+> *******************************************
+. 
+. 
+. ***** 2. ICD-9
+. gen ICD9 = ""
+(14,421,047 missing values generated)
+
+. foreach v of var dx* { 
+  2.         local num = substr("`v'", 3, .)
+  3.         replace ICD9 = `v' if ver == "9" | year < 2015
+  4.         merge m:1 ICD9 using "ICD9_HCC2015_first.dta", keep(1 3) nogenerat
+> e
+  5.         rename HCC hcc9`num'_1
+  6.         merge m:1 ICD9 using "ICD9_HCC2015_second.dta", keep(1 3) nogenera
+> te
+  7.         rename HCC hcc9`num'_2
+  8. } 
+variable ICD9 was str1 now str5
+(14,421,007 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    11,932,806
+        from master                11,932,806  
+        from using                          0  
+
+    matched                         2,488,241  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,420,409
+        from master                14,420,409  
+        from using                          0  
+
+    matched                               638  
+    -----------------------------------------
+(14,420,644 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    13,484,156
+        from master                13,484,156  
+        from using                          0  
+
+    matched                           936,891  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,420,635
+        from master                14,420,635  
+        from using                          0  
+
+    matched                               412  
+    -----------------------------------------
+(6,546,286 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,065,851
+        from master                14,065,851  
+        from using                          0  
+
+    matched                           355,196  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,420,804
+        from master                14,420,804  
+        from using                          0  
+
+    matched                               243  
+    -----------------------------------------
+(3,968,450 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,244,244
+        from master                14,244,244  
+        from using                          0  
+
+    matched                           176,803  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,420,970
+        from master                14,420,970  
+        from using                          0  
+
+    matched                                77  
+    -----------------------------------------
+
+. 
+. ***** 3. ICD-10
+. gen ICD10 = ""
+(14,421,047 missing values generated)
+
+. foreach v of var dx* { 
+  2.         local num = substr("`v'", 3, .)
+  3.         replace ICD10 = `v' if ver == "0"
+  4.         merge m:1 ICD10 using "ICD10_HCC2015_first.dta", keep(1 3) nogener
+> ate
+  5.         rename HCC hcc0`num'_1
+  6.         merge m:1 ICD10 using "ICD10_HCC2015_second.dta", keep(1 3) nogene
+> rate
+  7.         rename HCC hcc0`num'_2
+  8. } 
+(0 real changes made)
+(note: variable ICD10 was str1, now str7 to accommodate using data's values)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+(0 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+(0 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+(0 real changes made)
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+
+    Result                           # of obs.
+    -----------------------------------------
+    not matched                    14,421,047
+        from master                14,421,047  
+        from using                          0  
+
+    matched                                 0  
+    -----------------------------------------
+
+. drop ICD*
+
+. 
+. destring hcc*, replace
+hcc91_1: all characters numeric; replaced as int
+(11932806 missing values generated)
+hcc91_2: all characters numeric; replaced as int
+(14420409 missing values generated)
+hcc92_1: all characters numeric; replaced as int
+(13484156 missing values generated)
+hcc92_2: all characters numeric; replaced as int
+(14420635 missing values generated)
+hcc93_1: all characters numeric; replaced as int
+(14065851 missing values generated)
+hcc93_2: all characters numeric; replaced as int
+(14420804 missing values generated)
+hcc94_1: all characters numeric; replaced as int
+(14244244 missing values generated)
+hcc94_2: all characters numeric; replaced as int
+(14420970 missing values generated)
+hcc01_1: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc01_2: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc02_1: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc02_2: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc03_1: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc03_2: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc04_1: all characters numeric; replaced as byte
+(14421047 missing values generated)
+hcc04_2: all characters numeric; replaced as byte
+(14421047 missing values generated)
+
+. egen test = rownonmiss(hcc*)
+
+. drop if test == 0
+(11,106,150 observations deleted)
+
+. drop test
+
+. *****************************************************************************
+> *******************************************
+. 
+. 
+. ***** 4. Now getting enrollee-year level HCCs
+. keep enrolid year hcc*
+
+. 
+. local hccs 1 2 3 4 6 8 9 10 11 12 13 18 19 20 21 23 26 27 28 29 30 34 35 36 3
+> 7 38 ///
+>                 41 42 45 46 47 48 54 55 56 57 61 62 63 64 66 67 68 69 70 71 7
+> 3 74 75 81 82 87 ///
+>                 88 89 90 94 96 97 102 103 106 107 108 109 110 111 112 113 114
+>  115 117 118 119 ///
+>                 120 121 122 125 126 127 128 129 130 131 132 135 137 138 139 1
+> 42 145 146 149 150 ///
+>                 151 153 154 156 158 159 160 161 162 163 183 184 187 188 203 2
+> 04 205 207 208 ///
+>                 209 217 226 227 242 243 244 245 246 247 248 249 251 253 254 
+
+. foreach h of local hccs { 
+  2.         qui gen onhcc_`h' = 0 
+  3.         foreach v of varlist hcc* { 
+  4.                 qui replace onhcc_`h' = 1 if `v' == `h' 
+  5.         } 
+  6. } 
+
+. 
+. collapse (max) onhcc*, by(enrolid year) fast
+
+. save "/project/caretaking/FalsePositives_HCCs_`1'_`2'.dta", replace
+(note: file /project/caretaking/FalsePositives_HCCs_allfams_2014.dta not found)
+file /project/caretaking/FalsePositives_HCCs_allfams_2014.dta saved
+
+. rm "/projectnb/caretaking/SpendingFiles/Claims_`1'_`2'.dta"
+
+. *****************************************************************************
+> *******************************************
+. 
+end of do-file
+
+
+. 

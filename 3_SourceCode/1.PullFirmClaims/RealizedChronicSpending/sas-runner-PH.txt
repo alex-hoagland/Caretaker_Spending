@@ -1,0 +1,13 @@
+#!/bin/csh
+
+#$ -l h_rt=6:00:00
+#$ -j y
+#$ -P caretaking
+#$ -m b
+#$ -m e
+
+# Load SAS
+module load sas
+
+#Run the program
+sas 1.ChronicSpending_PH.sas

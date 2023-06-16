@@ -1,0 +1,171 @@
+1                                                          The SAS System                            13:17 Wednesday, April 14, 2021
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M5) 
+      Licensed to BOSTON UNIVERSITY - SFA T&R, Site 70084216.
+NOTE: This session is executing on the Linux 3.10.0-1160.15.2.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 14.3
+      SAS/ETS 14.3
+      SAS/OR 14.3
+      SAS/IML 14.3
+      SAS/QC 14.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.15.2.el7.x86_64 #1 SMP Wed Feb 3 15:06:38 UTC 2021 x86_64 CentOS Linux release 7.9.2009 (Core) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.25 seconds
+      cpu time            0.09 seconds
+      
+1          /*
+2          *========================================================================*
+3          * Program:   Realized Chronic Care Spending: IP.sas                      *
+4          *                                                                        *
+5          * Purpose:   This program identifies each enrollee-HCC's realized        *
+6          * 		chronic care spenidng in a year.			 *
+7          *                                                                        *
+8          * Author:    Alex Hoagland						 *
+9          *            Boston University				                 *
+10         *                                                                        *
+2                                                          The SAS System                            13:17 Wednesday, April 14, 2021
+
+11         * Created:   Feb, 2021		                                         *
+12         * Updated:  				                                 *
+13         *========================================================================*;
+14         */
+15         
+16         *Set libraries;
+17         libname in '/projectnb2/caretaking/SpendingFiles/' access=readonly;
+NOTE: Libref IN was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /projectnb2/caretaking/SpendingFiles
+18         libname out '/project/caretaking/';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /project/caretaking
+19         
+20         *** Start with all claims, keep only those associated with certain HCCs;
+21         data out.chroniccosts_ph(compress=yes);
+22            set in.allfamilies_pharma(keep=enrolid year copay cob deduct coins pay thercls);
+23            if year > 2013 then delete;
+24         
+25             if thercls in: ('21', '14', '16', '21', '27', '39', '40', '41', '42', '46', '47', '50', '51', '52', '53', '58', '59',
+25       !  '64', '68', '69', '70', '71', '72', '73',
+26                            '74', '75', '76', '85', '107', '120', '121', '122', '123', '124', '125', '160', '162', '166', '167',
+26       ! '170', '172', '173', '174', '175', '176',
+27                            '177', '178', '179', '181', '190', '191', '192', '193', '194', '242', '248', '250', '262', '263',
+27       ! '266', '267', '268');
+28         
+29            oop = copay + cob + coins + deduct;
+30         run;
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      25:8   
+NOTE: There were 283828517 observations read from the data set IN.ALLFAMILIES_PHARMA.
+NOTE: The data set OUT.CHRONICCOSTS_PH has 137220782 observations and 9 variables.
+NOTE: Compressing data set OUT.CHRONICCOSTS_PH increased size by 25.62 percent. 
+      Compressed is 105628 pages; un-compressed would require 84082 pages.
+NOTE: DATA statement used (Total process time):
+      real time           20:07.46
+      cpu time            20:04.64
+      
+
+31         
+32         
+33         *** Collapse to yearly spending by enrollee-thercls pairing (eventually need to merge this back into main sample);
+34         proc sql;
+35            create table out.chroniccosts_ph_table as
+36            select enrolid, thercls, year, sum(oop) as ph_oop, sum(pay) as ph_pay from out.chroniccosts_ph
+37            group by enrolid, thercls, year;
+NOTE: Table OUT.CHRONICCOSTS_PH_TABLE created, with 35779139 rows and 5 columns.
+
+38         quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           6:06.93
+      cpu time            6:06.31
+      
+
+39         
+40         
+3                                                          The SAS System                            13:17 Wednesday, April 14, 2021
+
+41         *** Adjust for inflation;
+42         data out.chroniccosts_ph_table;
+43            set out.chroniccosts_ph_table;
+44         
+45            * Change all spending to 2020 dollars;
+46            if year = 2006 then ph_oop = ph_oop * 1.2788;
+47            if year = 2006 then ph_pay = ph_pay * 1.2788 ;
+48            if year = 2007 then ph_oop = ph_oop * 1.2449;
+49            if year = 2007 then ph_pay = ph_pay * 1.2449;
+50            if year = 2008 then ph_oop = ph_oop * 1.1988;
+51            if year = 2008 then ph_pay = ph_pay * 1.1988 ;
+52            if year = 2009 then ph_oop = ph_oop * 1.2031 ;
+53            if year = 2009 then ph_pay = ph_pay * 1.2031 ;
+54            if year = 2010 then ph_oop = ph_oop * 1.1837 ;
+55            if year = 2010 then ph_pay = ph_pay * 1.1837 ;
+56            if year = 2011 then ph_oop = ph_oop * 1.1475 ;
+57            if year = 2011 then ph_pay = ph_pay * 1.1475 ;
+58            if year = 2012 then ph_oop = ph_oop * 1.1242 ;
+59            if year = 2012 then ph_pay = ph_pay * 1.1242  ;
+60            if year = 2013 then ph_oop = ph_oop * 1.1080 ;
+61            if year = 2013 then ph_pay = ph_pay * 1.1080 ;
+62            if year = 2014 then ph_oop = ph_oop * 1.0903 ;
+63            if year = 2014 then ph_pay = ph_pay * 1.0903 ;
+64            if year = 2015 then ph_oop = ph_oop * 1.0890 ;
+65            if year = 2015 then ph_pay = ph_pay * 1.0890 ;
+66            if year = 2016 then ph_oop = ph_oop * 1.0754 ;
+67            if year = 2016 then ph_pay = ph_pay * 1.0754 ;
+68            if year = 2017 then ph_oop = ph_oop * 1.0530 ;
+69            if year = 2017 then ph_pay = ph_pay * 1.0530 ;
+70            if year = 2018 then ph_oop = ph_oop * 1.0261 ;
+71            if year = 2018 then ph_pay = ph_pay * 1.0261 ;
+72         run;
+
+NOTE: There were 35779139 observations read from the data set OUT.CHRONICCOSTS_PH_TABLE.
+NOTE: The data set OUT.CHRONICCOSTS_PH_TABLE has 35779139 observations and 5 variables.
+NOTE: DATA statement used (Total process time):
+      real time           19.34 seconds
+      cpu time            19.24 seconds
+      
+
+73         
+74         *proc delete data=out.chroniccosts_ph;
+75         *run;
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           26:34.46
+      cpu time            26:30.31
+      

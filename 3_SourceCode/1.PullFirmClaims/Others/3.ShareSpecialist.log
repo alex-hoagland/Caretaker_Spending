@@ -1,0 +1,208 @@
+1                                                          The SAS System                               09:57 Tuesday, March 9, 2021
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M5) 
+      Licensed to BOSTON UNIVERSITY - SFA T&R, Site 70084216.
+NOTE: This session is executing on the Linux 3.10.0-1160.15.2.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 14.3
+      SAS/ETS 14.3
+      SAS/OR 14.3
+      SAS/IML 14.3
+      SAS/QC 14.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.15.2.el7.x86_64 #1 SMP Wed Feb 3 15:06:38 UTC 2021 x86_64 CentOS Linux release 7.9.2009 (Core) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           1.40 seconds
+      cpu time            0.05 seconds
+      
+1          /*
+2          *========================================================================*
+3          * Program:   Adults/share_specialists.sas                                *
+4          *                                                                        *
+5          * Purpose:   This program calculates total spending on PCPs and specialists *
+6          *		respectively. 		 				 *
+7          *                                                                        *
+8          * Author:    Alex Hoagland	                                         *
+9          *            Boston University				                 *
+10         *                                                                        *
+2                                                          The SAS System                               09:57 Tuesday, March 9, 2021
+
+11         * Created:   March 2021	                                                 *
+12         * Updated:   				                                 *
+13         *========================================================================*;
+14         */
+15         
+16         *Set libraries;
+17         libname in '/projectnb2/marketscan' access=readonly;
+NOTE: Libref IN was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /projectnb2/marketscan
+18         libname out '/project/caretaking/';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /project/caretaking
+19         
+20         /*----------------*
+21          * Create samples *
+22          *----------------*/;
+23         
+24         *Pull all outpatient claims;
+25         data out.allfamilies_outpatient(compress=yes);
+26            if _N_=1 then do;
+27            declare hash ids(dataset:"out.allfamilies");
+28            ids.definekey('famid');
+29            ids.definedone();
+30            end;
+31                 set in.ms_o_2006(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+32                 in.ms_o_2007(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+33                 in.ms_o_2008(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+34                 in.ms_o_2009(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+35                 in.ms_o_2010(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+36                 in.ms_o_2011(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+37                 in.ms_o_2012(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+38                 in.ms_o_2013(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+39                 in.ms_o_2014(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+40                 in.ms_o_2015(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+41                 in.ms_o_2016(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+42                 in.ms_o_2017(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate)
+43                 in.ms_o_2018(keep=enrolid year netpay pay cob copay coins deduct stdplac stdprov svcscat dx: proc1 svcdate);
+NOTE: Data file IN.MS_O_2007.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2008.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2009.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2010.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2011.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2012.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2013.DATA is in a format that is native to another host, or the file encoding does not match the session 
+3                                                          The SAS System                               09:57 Tuesday, March 9, 2021
+
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2014.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2015.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2016.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_O_2017.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+44                 famid = floor(enrolid/100);
+45            if ids.find()^=0 then delete;
+46         
+47            * Keep only outpatient place claims;
+48            if (svcscat >= 12210 & svcscat <= 12399) or (svcscat >= 21115 & svcscat <= 21199) or
+49               (svcscat >= 21215 & svcscat <= 21299) or (svcscat >= 22315 & svcscat <= 22399);
+50         run;
+
+NOTE: Character values have been converted to numeric values at the places given by: (Line):(Column).
+      48:8    48:27   48:49   48:68   49:8    49:27   49:49   49:68   
+WARNING: Multiple lengths were specified for the variable PROC1 by input data set(s). This can cause truncation of data.
+WARNING: Multiple lengths were specified for the variable DX1 by input data set(s). This can cause truncation of data.
+WARNING: Multiple lengths were specified for the variable DX2 by input data set(s). This can cause truncation of data.
+WARNING: Multiple lengths were specified for the variable DX3 by input data set(s). This can cause truncation of data.
+WARNING: Multiple lengths were specified for the variable DX4 by input data set(s). This can cause truncation of data.
+NOTE: There were 1755703 observations read from the data set OUT.ALLFAMILIES.
+NOTE: Missing values were generated as a result of performing an operation on missing values.
+      Each place is given by: (Number of times) at (Line):(Column).
+      1127527 at 44:17   1127527 at 44:30   
+NOTE: There were 533162372 observations read from the data set IN.MS_O_2006.
+NOTE: There were 597934189 observations read from the data set IN.MS_O_2007.
+NOTE: There were 745489618 observations read from the data set IN.MS_O_2008.
+NOTE: There were 765761924 observations read from the data set IN.MS_O_2009.
+NOTE: There were 850103199 observations read from the data set IN.MS_O_2010.
+NOTE: There were 1006249295 observations read from the data set IN.MS_O_2011.
+NOTE: There were 1055009390 observations read from the data set IN.MS_O_2012.
+NOTE: There were 875316774 observations read from the data set IN.MS_O_2013.
+NOTE: There were 951714057 observations read from the data set IN.MS_O_2014.
+NOTE: There were 599412792 observations read from the data set IN.MS_O_2015.
+NOTE: There were 607028634 observations read from the data set IN.MS_O_2016.
+NOTE: There were 573221660 observations read from the data set IN.MS_O_2017.
+NOTE: There were 588566519 observations read from the data set IN.MS_O_2018.
+NOTE: The data set OUT.ALLFAMILIES_OUTPATIENT has 349787310 observations and 19 variables.
+NOTE: Compressing data set OUT.ALLFAMILIES_OUTPATIENT decreased size by 8.46 percent. 
+      Compressed is 430973 pages; un-compressed would require 470778 pages.
+NOTE: DATA statement used (Total process time):
+      real time           7:53:33.32
+      cpu time            7:30:24.26
+      
+
+51         
+52         *** Export OP claims;
+53         proc export data=out.allfamilies_outpatient
+54             outfile = "/project/caretaking/allfamilies_OPRelevantSVCSCAT.dta"
+4                                                          The SAS System                               09:57 Tuesday, March 9, 2021
+
+55             dbms=stata
+56             replace;
+57         run;
+
+NOTE: The export data set has 349787310 observations and 19 variables.
+NOTE: "/project/caretaking/allfamilies_OPRelevantSVCSCAT.dta" file was successfully created.
+NOTE: PROCEDURE EXPORT used (Total process time):
+      real time           9:59.31
+      cpu time            3:59.79
+      
+
+58         
+59         proc delete data=out.allfamilies_outpatient;
+60         run;
+
+NOTE: Deleting OUT.ALLFAMILIES_OUTPATIENT (memtype=DATA).
+NOTE: PROCEDURE DELETE used (Total process time):
+      real time           1.89 seconds
+      cpu time            1.71 seconds
+      
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           8:03:36.57
+      cpu time            7:34:25.85
+      

@@ -1,0 +1,189 @@
+1                                                          The SAS System                              12:12 Wednesday, May 26, 2021
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M5) 
+      Licensed to BOSTON UNIVERSITY - SFA T&R, Site 70084216.
+NOTE: This session is executing on the Linux 3.10.0-1160.25.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 14.3
+      SAS/ETS 14.3
+      SAS/OR 14.3
+      SAS/IML 14.3
+      SAS/QC 14.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.25.1.el7.x86_64 #1 SMP Wed Apr 28 21:49:45 UTC 2021 x86_64 CentOS Linux release 7.9.2009 (Core) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           0.36 seconds
+      cpu time            0.05 seconds
+      
+1          /*
+2          *========================================================================*
+3          * Program:   Identifying family risk from diagnosis 		            *
+4          *                                                                        *
+5          * Purpose:   This code identifies non-sample individuals diagnosed 	 *
+6          * 		with an HCC in 2007. Then, calculates the rate at which  *
+7          *		other family members are diagnosed in next 10 years.     *
+8          *                                                                        *
+9          * Note: This file							 *
+10         * Author:    Alex Hoagland	                                         *
+2                                                          The SAS System                              12:12 Wednesday, May 26, 2021
+
+11         *            Boston University				                 *
+12         *									 *
+13         * Created:   October, 2020		                                 *
+14         * Updated:  		                                                 *
+15         *========================================================================*;
+16         */
+17         
+18         *Set libraries;
+19         libname in '/projectnb2/marketscan' access=readonly;
+NOTE: Libref IN was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /projectnb2/marketscan
+20         libname out '/project/caretaking/IdentifyPHat/';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /project/caretaking/IdentifyPHat
+21         
+22         /*------------------------------------------------------------------------*
+23          * 		ORDER OF OPERATIONS					  *
+24          * 0. Identify all with HCC_21 claims in 2006-2018			  *
+25          * 1. Pull enrollment files for all families in (0.)			  *
+26          * 2. The rest is done in stata						  *
+27          *------------------------------------------------------------------------*/;
+28         
+29         /* --- 1. Enrollment Info for all involved families -----------------------------------------*/;
+30         proc import datafile="/project/caretaking/IdentifyPHat/allenrollees_hcc21.dta"
+31            out = out.allenrollees_hcc21
+32            dbms = stata
+33            replace;
+34         run;
+
+NOTE: The import data set has 7571574 observations and 1 variables.
+NOTE: OUT.ALLENROLLEES_HCC21 data set was successfully created.
+NOTE: PROCEDURE IMPORT used (Total process time):
+      real time           1.01 seconds
+      cpu time            0.86 seconds
+      
+
+35         
+36         data out.allenrollment_21;
+37            if _N_=1 then do;
+38            declare hash ids(dataset:"out.allenrollees_hcc21");
+39            ids.definekey('famid');
+40            ids.definedone();
+41            end;
+42         
+43            set in.ms_a_2006(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL) in.ms_a_2007(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+43       ! in.ms_a_2008(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+44                in.ms_a_2009(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL) in.ms_a_2010(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+44       ! in.ms_a_2011(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+45                in.ms_a_2012(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL) in.ms_a_2013(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+45       ! in.ms_a_2014(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+46                in.ms_a_2015(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL) in.ms_a_2016(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL)
+47                in.ms_a_2017(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL) in.ms_a_2018(keep = ENROLID MEMDAYS YEAR AGE SEX EMPREL);
+NOTE: Data file IN.MS_A_2006.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2007.DATA is in a format that is native to another host, or the file encoding does not match the session 
+3                                                          The SAS System                              12:12 Wednesday, May 26, 2021
+
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2008.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2009.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2010.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2011.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2012.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2013.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2014.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2015.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2016.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2017.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_A_2018.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+48            famid = floor(enrolid/100);
+49            if ids.find()^=0 then delete;
+50         run;
+
+NOTE: There were 7571574 observations read from the data set OUT.ALLENROLLEES_HCC21.
+NOTE: There were 31857040 observations read from the data set IN.MS_A_2006.
+NOTE: There were 35042269 observations read from the data set IN.MS_A_2007.
+NOTE: There were 41275020 observations read from the data set IN.MS_A_2008.
+NOTE: There were 39970145 observations read from the data set IN.MS_A_2009.
+NOTE: There were 45239752 observations read from the data set IN.MS_A_2010.
+NOTE: There were 52194324 observations read from the data set IN.MS_A_2011.
+NOTE: There were 53131420 observations read from the data set IN.MS_A_2012.
+NOTE: There were 43737217 observations read from the data set IN.MS_A_2013.
+NOTE: There were 47258528 observations read from the data set IN.MS_A_2014.
+NOTE: There were 28348363 observations read from the data set IN.MS_A_2015.
+NOTE: There were 27895445 observations read from the data set IN.MS_A_2016.
+NOTE: There were 26146275 observations read from the data set IN.MS_A_2017.
+NOTE: There were 27087740 observations read from the data set IN.MS_A_2018.
+NOTE: The data set OUT.ALLENROLLMENT_21 has 73245333 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           31:47.40
+      cpu time            31:45.08
+      
+4                                                          The SAS System                              12:12 Wednesday, May 26, 2021
+
+
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           31:48.95
+      cpu time            31:46.02
+      

@@ -1,0 +1,12 @@
+#!/bin/csh
+
+#$ -l h_rt=9:00:00
+#$ -j y
+#$ -P econdept
+#$ -m e
+
+# Load SAS
+module load sas
+
+#Run the program
+sas VitaminD.sas

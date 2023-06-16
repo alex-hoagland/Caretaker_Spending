@@ -1,0 +1,82 @@
+// Uncluttered graph scheme
+// Author: Gray Kimbrough
+// gray.kimbrough@gmail.com
+// Adapted by Alex Hoagland 
+
+// Based off of s2color scheme, which hopefully will not change
+#include s2color
+// Sequence number to put it above Stata schemes
+sequence 1110
+// Label to identify this scheme
+label "Uncluttered graphs"
+
+// Bar and line color choices
+color p1      "75 133 168"
+color p2      "225 178 0"
+color p3      "217 129 0"
+color p4      "24 33 57"
+color p5      "171 165 151"
+
+// Non-color settings
+// Most significantly:
+//  * a very small but non-zero margin within the axes
+//    (remove this padding by replacing 'vsmall' with 'zero',
+//        or make larger with other sizes)
+//  * thicker lines
+//  * horizontal labeling of vertical axis
+//  * Do not display the legend (label the lines or bars instead!)
+//  * Change fonts of graphs to Garamond
+//  * Set aspect ratio to the Golden Ratio
+
+margin        twoway          vsmall
+linewidth     p               medthick
+anglestyle    vertical_tick   horizontal
+yesno         legend_force_nodraw yes
+symbolsize    p               vsmall
+linewidth     pbar            vvvthin
+
+graph set window fontface "garamond"
+local golden 2/(sqrt(5)+1)
+aspectratio   `golden'
+anglestyle   vertical_tick   horizontal
+
+// Remove grid and set all background colors to white
+color grid                gs12
+color major_grid          gs12
+color background          white
+color plotregion          white
+color plotregion_line     white
+color matrix_plotregion   white
+
+// Set most other elements to black
+color matplotregion_line  black
+color foreground          black
+color symbol              black
+color text                black
+color body                black
+color small_body          black
+color heading             black
+color subheading          black
+color axis_title          black
+color matrix_label        black
+color label               black
+color key_label           black
+color tick_label          black
+color tick_biglabel       black
+color matrix_marklbl      black
+color sts_risk_label      black
+color sts_risk_title      black
+color text_option         black
+color text_option_line    black
+color filled_text         black
+color axisline            black
+color tick                black
+color minortick           black
+color refmarkline         black
+color dotmarkline         black
+color dots                black
+color matplotregion_line  black
+color legend_line         black
+color clegend_line        black
+color zyx2                black
+color sunflowerdf         black

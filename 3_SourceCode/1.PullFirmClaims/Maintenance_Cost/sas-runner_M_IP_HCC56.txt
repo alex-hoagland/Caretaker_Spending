@@ -1,0 +1,11 @@
+#!/bin/csh
+
+#$ -l h_rt=6:00:00
+#$ -j y
+#$ -P caretaking
+
+# Load SAS
+module load sas
+
+#Run the program
+sas 1.MaintenanceCosts_HCC56_IP.sas

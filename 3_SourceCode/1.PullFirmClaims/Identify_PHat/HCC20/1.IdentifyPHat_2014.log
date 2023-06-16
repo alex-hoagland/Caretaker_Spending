@@ -1,0 +1,191 @@
+1                                                          The SAS System                                19:03 Tuesday, May 25, 2021
+
+NOTE: Unable to open SASUSER.REGSTRY. WORK.REGSTRY will be opened instead.
+NOTE: All registry changes will be lost at the end of the session.
+
+WARNING: Unable to copy SASUSER registry to WORK registry. Because of this, you will not see registry customizations during this 
+         session.
+NOTE: Unable to open SASUSER.PROFILE. WORK.PROFILE will be opened instead.
+NOTE: All profile changes will be lost at the end of the session.
+NOTE: Copyright (c) 2016 by SAS Institute Inc., Cary, NC, USA. 
+NOTE: SAS (r) Proprietary Software 9.4 (TS1M5) 
+      Licensed to BOSTON UNIVERSITY - SFA T&R, Site 70084216.
+NOTE: This session is executing on the Linux 3.10.0-1160.25.1.el7.x86_64 (LIN X64) platform.
+
+
+
+NOTE: Updated analytical products:
+      
+      SAS/STAT 14.3
+      SAS/ETS 14.3
+      SAS/OR 14.3
+      SAS/IML 14.3
+      SAS/QC 14.3
+
+NOTE: Additional host information:
+
+ Linux LIN X64 3.10.0-1160.25.1.el7.x86_64 #1 SMP Wed Apr 28 21:49:45 UTC 2021 x86_64 CentOS Linux release 7.9.2009 (Core) 
+
+You are running SAS 9. Some SAS 8 files will be automatically converted 
+by the V9 engine; others are incompatible.  Please see 
+http://support.sas.com/rnd/migration/planning/platform/64bit.html
+
+PROC MIGRATE will preserve current SAS file attributes and is 
+recommended for converting all your SAS libraries from any 
+SAS 8 release to SAS 9.  For details and examples, please see
+http://support.sas.com/rnd/migration/index.html
+
+
+This message is contained in the SAS news file, and is presented upon
+initialization.  Edit the file "news" in the "misc/base" directory to
+display site-specific news and information in the program log.
+The command line option "-nonews" will prevent this display.
+
+
+
+
+NOTE: SAS initialization used:
+      real time           1.43 seconds
+      cpu time            0.07 seconds
+      
+1          /*
+2          *========================================================================*
+3          * Program:   Identifying family risk from diagnosis 		             *
+4          *                                                                        *
+5          * Purpose:   This code identifies non-sample individuals diagnosed 	 *
+6          * 		with an HCC in 2007. Then, calculates the rate at which  *
+7          *		other family members are diagnosed in next 10 years.     *
+8          *                                                                        *
+9          * Note: This file							 *
+10         * Author:    Alex Hoagland	                                         *
+2                                                          The SAS System                                19:03 Tuesday, May 25, 2021
+
+11         *            Boston University				                 *
+12         *									 *
+13         * Created:   October, 2020		                                 *
+14         * Updated:  		                                                 *
+15         *========================================================================*;
+16         */
+17         
+18         *Set libraries;
+19         libname in '/projectnb2/marketscan' access=readonly;
+NOTE: Libref IN was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /projectnb2/marketscan
+20         libname out '/project/caretaking/IdentifyPHat/';
+NOTE: Libref OUT was successfully assigned as follows: 
+      Engine:        V9 
+      Physical Name: /project/caretaking/IdentifyPHat
+21         
+22         /*------------------------------------------------------------------------*
+23          * 		ORDER OF OPERATIONS					  *
+24          * 0. Identify all with HCC  claims in 2014-2018			  *
+25          * 1. Pull enrollment files for all families in (0.)			  *
+26          * 2. The rest is done in stata						  *
+27          *------------------------------------------------------------------------*/;
+28         
+29         
+30         /* --- 0. All Claims, 2014 - 2018 -----------------------------------------*/;
+31         data out.allclaims_hcc20_2014;
+32            set in.ms_o_2014(keep=enrolid age sex year dx1 dx2 svcdate) in.ms_s_2014(keep=enrolid age sex year dx1 dx2 svcdate);
+NOTE: Data file IN.MS_O_2014.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+NOTE: Data file IN.MS_S_2014.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+33         
+34            if dx1 in: ('24940', '24941', '24950', '24951', '24960', '24961', '24970', '24971', '24980', '24981', '24990',
+34       ! '24991', '25040', '25041', '25042', '25043', '25050', '25051', '25052', '25053', '25060', '25061', '25062', '25063',
+34       ! '25070', '25071', '25072', '25073', '25080', '25081', '25082', '25083', '25090', '25091', '25092', '25093', '3572',
+34       ! '36201', '36202', '36203', '36204', '36205', '36206', '36207', '36641', 'E0821', 'E0822', 'E0829', 'E08311', 'E08319',
+34       ! 'E08321', 'E08329', 'E08331', 'E08339', 'E08341', 'E08349', 'E08351', 'E08359', 'E0836', 'E0839', 'E0840', 'E0841',
+34       ! 'E0842', 'E0843', 'E0844', 'E0849', 'E0851', 'E0852', 'E0859', 'E08610', 'E08618', 'E08620', 'E08621', 'E08622',
+34       ! 'E08628', 'E08630', 'E08638', 'E08649', 'E0865', 'E0869', 'E088', 'E0921', 'E0922', 'E0929', 'E09311', 'E09319',
+34       ! 'E09321', 'E09329', 'E09331', 'E09339', 'E09341', 'E09349', 'E09351', 'E09359', 'E0936', 'E0939', 'E0940', 'E0941',
+34       ! 'E0942', 'E0943', 'E0944', 'E0949', 'E0951', 'E0952', 'E0959', 'E09610', 'E09618', 'E09620', 'E09621', 'E09622',
+34       ! 'E09628', 'E09630', 'E09638', 'E09649', 'E0965', 'E0969', 'E098', 'E1021', 'E1022', 'E1029', 'E10311', 'E10319',
+34       ! 'E10321', 'E10329', 'E10331', 'E10339', 'E10341', 'E10349', 'E10351', 'E10359', 'E1036', 'E1039', 'E1040', 'E1041',
+34       ! 'E1042', 'E1043', 'E1044', 'E1049', 'E1051', 'E1052', 'E1059', 'E10610', 'E10618', 'E10620', 'E10621', 'E10622',
+34       ! 'E10628', 'E10630', 'E10638', 'E10649', 'E1065', 'E1069', 'E108', 'E1121', 'E1122', 'E1129', 'E11311', 'E11319',
+34       ! 'E11321', 'E11329', 'E11331', 'E11339', 'E11341', 'E11349', 'E11351', 'E11359', 'E1136', 'E1139', 'E1140', 'E1141',
+34       ! 'E1142', 'E1143', 'E1144', 'E1149', 'E1151', 'E1152', 'E1159', 'E11610', 'E11618', 'E11620', 'E11621', 'E11622',
+34       ! 'E11628', 'E11630', 'E11638', 'E11649', 'E1165', 'E1169', 'E118', 'E1321', 'E1322', 'E1329', 'E13311', 'E13319',
+34       ! 'E13321', 'E13329', 'E13331', 'E13339', 'E13341', 'E13349', 'E13351', 'E13359', 'E1336', 'E1339', 'E1340', 'E1341',
+34       ! 'E1342', 'E1343', 'E1344', 'E1349', 'E1351', 'E1352', 'E1359', 'E13610', 'E13618', 'E13620', 'E13621', 'E13622',
+34       ! 'E13628', 'E13630', 'E13638', 'E13649', 'E1365', 'E1369', 'E138');
+35         run;
+
+NOTE: There were 951714057 observations read from the data set IN.MS_O_2014.
+NOTE: There were 67194736 observations read from the data set IN.MS_S_2014.
+3                                                          The SAS System                                19:03 Tuesday, May 25, 2021
+
+NOTE: The data set OUT.ALLCLAIMS_HCC20_2014 has 3590948 observations and 7 variables.
+NOTE: DATA statement used (Total process time):
+      real time           1:02:21.27
+      cpu time            1:02:15.42
+      
+
+36         
+37         * Collapse to enrollee level;
+38         proc sql;
+39            create table out.allenrollees_hcc20_2014 as
+40            select enrolid from out.allclaims_hcc20_2014
+41            group by enrolid;
+WARNING: A GROUP BY clause has been transformed into an ORDER BY clause because neither the SELECT clause nor the optional HAVING 
+         clause of the associated table-expression referenced a summary function.
+NOTE: Table OUT.ALLENROLLEES_HCC20_2014 created, with 3590948 rows and 1 columns.
+
+42         quit;
+NOTE: PROCEDURE SQL used (Total process time):
+      real time           1.97 seconds
+      cpu time            1.68 seconds
+      
+
+43         
+44         data out.allenrollees_hcc20_2014;
+45            set out.allenrollees_hcc20_2014;
+46         
+47            famid = floor(enrolid/100);
+48         run;
+
+NOTE: There were 3590948 observations read from the data set OUT.ALLENROLLEES_HCC20_2014.
+NOTE: The data set OUT.ALLENROLLEES_HCC20_2014 has 3590948 observations and 2 variables.
+NOTE: DATA statement used (Total process time):
+      real time           0.89 seconds
+      cpu time            0.68 seconds
+      
+
+49         
+50         /* --- 1. Enrollment Info for all involved families -----------------------------------------*/;
+51         data out.allenrollment_20_2014;
+52            if _N_=1 then do;
+53            declare hash ids(dataset:"out.allenrollees_hcc20_2014");
+54            ids.definekey('famid');
+55            ids.definedone();
+56            end;
+57         
+58            set in.ms_a_2014;
+NOTE: Data file IN.MS_A_2014.DATA is in a format that is native to another host, or the file encoding does not match the session 
+      encoding. Cross Environment Data Access will be used, which might require additional CPU resources and might reduce 
+      performance.
+59            famid = floor(enrolid/100);
+60            if ids.find()^=0 then delete;
+61         run;
+
+NOTE: There were 3590948 observations read from the data set OUT.ALLENROLLEES_HCC20_2014.
+NOTE: There were 47258528 observations read from the data set IN.MS_A_2014.
+NOTE: The data set OUT.ALLENROLLMENT_20_2014 has 848300 observations and 84 variables.
+NOTE: DATA statement used (Total process time):
+      real time           4:52.30
+4                                                          The SAS System                                19:03 Tuesday, May 25, 2021
+
+      cpu time            4:51.51
+      
+
+
+NOTE: SAS Institute Inc., SAS Campus Drive, Cary, NC USA 27513-2414
+NOTE: The SAS System used:
+      real time           1:07:18.33
+      cpu time            1:07:09.39
+      

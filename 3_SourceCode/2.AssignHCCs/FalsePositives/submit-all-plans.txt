@@ -1,0 +1,23 @@
+#!/bin/bash
+
+#SBATCH --nodes=2
+#SBATCH --ntasks-per-node=4
+#SBATCH --time=00:10:00
+#SBATCH --output=master_sbatch_output.qlog
+
+#$ -P caretaking
+
+# Submit jobs
+qsub -v plan="allfams" -v year="2006" plan-maker.txt
+qsub -v plan="allfams" -v year="2007" plan-maker.txt
+qsub -v plan="allfams" -v year="2008" plan-maker.txt
+qsub -v plan="allfams" -v year="2009" plan-maker.txt
+qsub -v plan="allfams" -v year="2010" plan-maker.txt
+qsub -v plan="allfams" -v year="2011" plan-maker.txt
+qsub -v plan="allfams" -v year="2012" plan-maker.txt
+qsub -v plan="allfams" -v year="2013" plan-maker.txt
+qsub -v plan="allfams" -v year="2014" plan-maker.txt
+qsub -v plan="allfams" -v year="2015" plan-maker.txt
+qsub -v plan="allfams" -v year="2016" plan-maker.txt
+qsub -v plan="allfams" -v year="2017" plan-maker.txt
+qsub -v plan="allfams" -v year="2018" plan-maker.txt

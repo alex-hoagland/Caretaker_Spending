@@ -1,0 +1,14 @@
+#!/bin/csh
+
+#$ -N prepHCCData
+#$ -l h_rt=06:00:00
+#$ -j y
+#$ -m e
+
+#$ -P econdept
+
+# Load Stata
+module load stata
+
+#Run the program
+stata do 0.PrepHCCData.do

@@ -1,0 +1,13 @@
+#!/bin/csh
+
+#$ -N HCC130-enrollment
+#$ -l h_rt=12:00:00
+#$ -j y
+#$ -P caretaking
+#$ -m e
+
+# Load SAS
+module load sas
+
+#Run the program
+sas 2.IdentifyPHat.sas
