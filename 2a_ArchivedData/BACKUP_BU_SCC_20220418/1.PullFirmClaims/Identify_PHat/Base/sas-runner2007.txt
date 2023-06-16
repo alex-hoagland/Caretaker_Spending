@@ -1,0 +1,11 @@
+#!/bin/csh
+
+#$ -l h_rt=24:00:00
+#$ -j y
+#$ -P caretaking
+
+# Load SAS
+module load sas
+
+#Run the program
+sas 1.IdentifyPHat_2007.sas

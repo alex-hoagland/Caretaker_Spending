@@ -1,0 +1,13 @@
+#!/bin/csh
+
+#$ -N HCC12-2018
+#$ -l h_rt=24:00:00
+#$ -j y
+#$ -P caretaking
+#$ -m e
+
+# Load SAS
+module load sas
+
+#Run the program
+sas 1.IdentifyPHat_HCC12_2018.sas
